@@ -1,6 +1,8 @@
 package com.system.management.web;
 
+import com.system.management.exception.NotOwnerException;
 import com.system.management.model.binding.CreateNewBoardBindingModel;
+import com.system.management.model.dto.BoardInformationDTO;
 import com.system.management.model.dto.UserInformationDTO;
 import com.system.management.model.service.CreateNewBoardServiceModel;
 import com.system.management.model.user.CurrentUser;
@@ -58,6 +60,66 @@ public class BoardController {
         boardService
                 .createNewBoard(modelMapper.map(createNewBoardBindingModel, CreateNewBoardServiceModel.class), currentUser.getEmail());
 
-        return null;
+        return ResponseEntity.ok().build();
+    }
+
+    @PreAuthorize("isLogged()")
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Object> deleteBoard(@PathVariable Integer id) {
+
+        try {
+            boardService
+                    .deleteBoard(id, currentUser.getId());
+        } catch (NotOwnerException e){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        }
+        return ResponseEntity.ok().build();
+    }
+
+    @PreAuthorize("isLogged()")
+    @GetMapping("/participate/board")
+    public ResponseEntity<Object> getParticipatedBoards() {
+        Integer accountId = currentUser.getId();
+
+        List<BoardInformationDTO> allParticipatedBoards = boardService
+                .getAllParticipatedBoards(accountId);
+        return ResponseEntity.ok().body(allParticipatedBoards);
+    }
+
+    @PreAuthorize("isLogged()")
+    @GetMapping("/own/board")
+    public ResponseEntity<Object> getOwnBoards() {
+        Integer accountId = currentUser.getId();
+
+        List<BoardInformationDTO> allOwnBoards = boardService
+                .getAllOwnBoards(accountId);
+        return ResponseEntity.ok().body(allOwnBoards);
+    }
+
+    @PreAuthorize("isLogged()")
+    @GetMapping("/edit/board/{id}")
+    public ResponseEntity<Object> getInfoBoardForEdit(@PathVariable Integer id) {
+
+        BoardInformationDTO infoBoardForEdit = boardService
+                .getInfoBoardForEdit(id, currentUser.getId());
+
+        return ResponseEntity.ok().body(infoBoardForEdit);
+    }
+
+    @PutMapping("/edit/board/{id}")
+    public ResponseEntity<Object> changeInfoAboutTheBoard(@PathVariable Integer id,@Valid @RequestBody CreateNewBoardBindingModel createNewBoardBindingModel,BindingResult bindingResult,RedirectAttributes redirectAttributes) {
+
+        if (bindingResult.hasErrors()) {
+            redirectAttributes
+                    .addFlashAttribute("createNewBoardBindingModel",createNewBoardBindingModel)
+                    .addFlashAttribute("org.springframework.validation.BindingResult.createNewBoardBindingModel",bindingResult);
+
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(bindingResult.getAllErrors());
+        }
+
+                        boardService
+                                .changeInfoBoard(modelMapper.map(createNewBoardBindingModel,CreateNewBoardServiceModel.class),id);
+
+        return ResponseEntity.ok().build();
     }
 }

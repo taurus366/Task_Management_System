@@ -1,8 +1,27 @@
 package com.system.management.model.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
+
+
+@NamedEntityGraph(
+        name = "account-board-task-project-member",
+        attributeNodes = {
+                @NamedAttributeNode("boardLists"),
+                @NamedAttributeNode(value = "boardLists",subgraph = "tasks")
+        },
+        subgraphs = {
+                @NamedSubgraph(
+                        name = "tasks",
+                        attributeNodes = {
+                                @NamedAttributeNode("taskList")
+
+                        }
+                )
+        }
+)
+
 
 @Entity
 @Table(name = "accounts")
@@ -16,6 +35,9 @@ public class AccountEntity extends BaseEntity {
 
     @Column(nullable = false,unique = true)
     private String email;
+
+    @ManyToMany()
+    private List<BoardEntity> boardLists = new ArrayList<>();
 
     public AccountEntity() {
     }
@@ -44,6 +66,15 @@ public class AccountEntity extends BaseEntity {
 
     public AccountEntity setEmail(String email) {
         this.email = email;
+        return this;
+    }
+
+    public List<BoardEntity> getBoardLists() {
+        return boardLists;
+    }
+
+    public AccountEntity setBoardLists(List<BoardEntity> boardLists) {
+        this.boardLists = boardLists;
         return this;
     }
 }

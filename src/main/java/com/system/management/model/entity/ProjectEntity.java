@@ -1,6 +1,26 @@
 package com.system.management.model.entity;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
+
+@NamedEntityGraph(
+        name = "project-task-board",
+        attributeNodes = {
+                @NamedAttributeNode("taskList"),
+                @NamedAttributeNode(value = "taskList",subgraph = "board"),
+                @NamedAttributeNode("owner")
+        },
+        subgraphs = {
+                @NamedSubgraph(
+                        name = "board",
+                        attributeNodes = {
+                                @NamedAttributeNode("board")
+                        }
+                )
+        }
+)
+
 
 @Entity
 @Table(name = "projects")
@@ -14,6 +34,9 @@ public class ProjectEntity extends BaseEntity {
 
     @ManyToOne()
     private AccountEntity owner;
+
+    @OneToMany(mappedBy = "project",cascade = CascadeType.REMOVE)
+    private List<TaskEntity> taskList = new ArrayList<>();
 
     public ProjectEntity() {
     }
@@ -42,6 +65,15 @@ public class ProjectEntity extends BaseEntity {
 
     public ProjectEntity setOwner(AccountEntity owner) {
         this.owner = owner;
+        return this;
+    }
+
+    public List<TaskEntity> getTaskList() {
+        return taskList;
+    }
+
+    public ProjectEntity setTaskList(List<TaskEntity> taskList) {
+        this.taskList = taskList;
         return this;
     }
 }

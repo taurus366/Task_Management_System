@@ -32,6 +32,7 @@ public class AccountServiceImpl implements AccountService {
         this.login(account);
 
         return new UserInformationDTO()
+                .setId(account.getId())
                 .setEmail(account.getEmail())
                 .setFirstName(account.getFirstName())
                 .setLastName(account.getLastName());
@@ -56,7 +57,8 @@ public class AccountServiceImpl implements AccountService {
         return new UserInformationDTO()
                 .setFirstName(savedAccount.getFirstName())
                 .setLastName(savedAccount.getLastName())
-                .setEmail(newAccount.getEmail());
+                .setEmail(newAccount.getEmail())
+                .setId(savedAccount.getId());
     }
 
     @Override
@@ -78,6 +80,7 @@ public class AccountServiceImpl implements AccountService {
                 .getAccountEntityByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User doesn't exist"));
 
         return new UserInformationDTO()
+                .setId(account.getId())
                 .setFirstName(account.getFirstName())
                 .setLastName(account.getLastName())
                 .setEmail(account.getEmail());
@@ -86,6 +89,7 @@ public class AccountServiceImpl implements AccountService {
     private void login(AccountEntity account) {
 
         currentUser
+                .setId(account.getId())
                 .setFirstName(account.getFirstName())
                 .setLastName(account.getLastName())
                 .setEmail(account.getEmail())

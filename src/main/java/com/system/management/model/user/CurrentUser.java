@@ -7,10 +7,20 @@ import org.springframework.web.context.annotation.SessionScope;
 @SessionScope
 public class CurrentUser {
 
+    private Integer id;
     private boolean loggedIn;
     private String firstName;
     private String lastName;
     private String email;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public CurrentUser setId(Integer id) {
+        this.id = id;
+        return this;
+    }
 
     public boolean isLoggedIn() {
         return loggedIn;
@@ -50,6 +60,7 @@ public class CurrentUser {
 
     public void clean() {
         setLoggedIn(false)
+                .setId(null)
                 .setFirstName(null)
                 .setLastName(null)
                 .setEmail(null);
